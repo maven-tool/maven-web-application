@@ -1,7 +1,7 @@
 node{
 def mavenHome = tool name: "maven3.8.4"
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
-
+try{
 stage('checkout')
 {
 git branch: 'development', credentialsId: 'ff2e00f2-50a8-4d46-8e0e-ead63d9181b3', url: 'https://github.com/maven-tool/maven-web-application.git'
@@ -28,5 +28,12 @@ sshagent(['69c7b5d7-edbb-4c56-b4bf-ee3fe641a857']) {
 sh "scp -o strictHostKeyChecking=no target/maven-web-application.war ec2-user@35.154.97.82:/opt/apache-tomcat-9.0.65/webapps"
 }
 }
-
-}
+*/
+}catch(e){
+currentBuild.result = FAILED
+  throw e
+  }
+  finally{
+  notifyBuild('currentBuild.result')
+  }
+}//nodeclosingtag
