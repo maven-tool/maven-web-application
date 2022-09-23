@@ -34,11 +34,11 @@ currentBuild.result = "FAILED"
   throw e
   }
   finally{
-  notifyBuild('currentBuild.result')
+  walmart-dev('currentBuild.result')
   }
 }//nodeclosingtag
 
-def notifyBuild(String buildStatus = 'STARTED') {
+def walmart-dev(String buildStatus = 'STARTED') {
   // build status of null means successful
   buildStatus =  buildStatus ?: 'SUCCESSFUL'
 
