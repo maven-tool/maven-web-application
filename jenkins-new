@@ -2,6 +2,8 @@ node{
 def mavenHome = tool name: "maven3.8.4"
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
 try{
+notifyBuild('STARTED')
+
 stage('checkout')
 {
 git branch: 'development', credentialsId: 'ff2e00f2-50a8-4d46-8e0e-ead63d9181b3', url: 'https://github.com/maven-tool/maven-web-application.git'
