@@ -1,0 +1,90 @@
+pipeline
+{
+agent any
+
+tools{
+    maven "maven3.8.4"
+}
+
+triggers {
+  pollSCM '* * * * *'
+}
+
+options {
+  buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
+  timestamps()
+}
+
+stages{
+//checkoutcode stage
+stage('checkout')
+{
+steps{
+git branch: 'development', credentialsId: 'ff2e00f2-50a8-4d46-8e0e-ead63d9181b3', url: 'https://github.com/maven-tool/maven-web-application.git'
+}
+}
+//build stage
+stage('build')
+{
+steps{
+sh "mvn clean package"
+}
+}
+//executesonarqube report
+stage('sonarreport')
+{
+steps{
+sh "mvn sonar:sonar"
+}
+}
+//uploadartifacts
+stage('uploadartifactsrepo')
+{
+steps{
+sh "mvn deploy"
+}
+}
+//deployappintomcat
+stage('deployapp')
+{
+steps{
+sshagent(['69c7b5d7-edbb-4c56-b4bf-ee3fe641a857']) {
+sh "scp -o strictHostKeyChecking=no target/maven-web-application.war ec2-user@13.233.192.88:/opt/apache-tomcat-9.0.65/webapps"
+}
+}
+}
+
+}//stages closing
+
+post {
+  success {
+  }
+  failure {
+  }
+}
+}
+def notifyBuild(String buildStatus = 'STARTED') {
+  // build status of null means successful
+  buildStatus =  buildStatus ?: 'SUCCESSFUL'
+
+  // Default values
+  def colorName = 'GREEN'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
+
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  } else if (buildStatus == 'SUCCESSFUL') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+  }
+
+  // Send notifications
+  slackSend (color: colorCode, message: summary, channel: 'general')
+}
