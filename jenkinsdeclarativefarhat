@@ -58,9 +58,12 @@ sh "scp -o strictHostKeyChecking=no target/maven-web-application.war ec2-user@13
 
 post {
   success {
+  notifyBuild('SUCCESS')
   }
   failure {
+  notifyBuild('FAILURE')
   }
+}
 }
 
 def notifyBuild(String buildStatus = 'STARTED') {
