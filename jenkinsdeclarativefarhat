@@ -1,7 +1,6 @@
 pipeline
 {
 agent any
-notifyBuild('STARTED')
 tools{
     maven "maven3.8.4"
 }
