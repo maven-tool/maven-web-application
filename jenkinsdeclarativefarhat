@@ -14,12 +14,7 @@ options {
   buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
   timestamps()
 }
-post {
-  success {
-  }
-  failure {
-  }
-}
+
 stages{
 //checkoutcode stage
 stage('checkout')
@@ -61,6 +56,14 @@ sh "scp -o strictHostKeyChecking=no target/maven-web-application.war ec2-user@13
 
 }//stages closing
 
+post {
+  success {
+  }
+  failure {
+  }
+}
+}
+
 def notifyBuild(String buildStatus = 'STARTED') {
   // build status of null means successful
   buildStatus =  buildStatus ?: 'SUCCESSFUL'
@@ -86,4 +89,4 @@ def notifyBuild(String buildStatus = 'STARTED') {
   // Send notifications
   slackSend (color: colorCode, message: summary, channel: 'general')
 }
-}
+
